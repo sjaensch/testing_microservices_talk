@@ -1,49 +1,340 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+        <title>reveal.js</title>
 
-		<link rel="stylesheet" href="css/reset.css">
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+        <link rel="stylesheet" href="css/reset.css">
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/yelp.css">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/monokai.css">
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/monokai.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-background-image="images/title_all_offices.gif" data-state="title-slide">
+                    <img src="images/yelp_logo.gif" class="plain" style="width: 20%" />
+                    <h2 style="color: white; -webkit-text-stroke: 2px #666;">Testing Microservices:<br />fast and with confidence</h2>
+                    <h5 style="color: white; -webkit-text-stroke: 1px #666;">Stephan Jaensch<br />@s_jaensch</h5>
+                </section>
 
-		<script src="js/reveal.js"></script>
+                <section data-background-image="images/welcome_to_yelp.jpg">
+                    <aside class="notes">
+                        <ul>
+                            <li>journey through testing services at Yelp</li>
+                        </ul>
+                    </aside>
+                </section>
+                
+                <section>
+                    <h2>Two years ago...</h2>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true }
-				]
-			});
-		</script>
-	</body>
+                    <aside class="notes">
+                        <ul>
+                            <li>It started two years ago, when I gave another talk on testing at EuroPython 2017</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section data-transition="slide-in none">
+                    <h3>The Testing Pyramid</h3>
+                    <img src="images/the_test_pyramid.svg" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>Focused on the top end of the pyramid</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section data-transition="none slide-out">
+                    <h3>The Testing Pyramid</h3>
+                    <img src="images/the_test_pyramid_arrow.png" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>Sometimes also called system tests, acceptance tests</li>
+                            <li>The slowest, most expensive tests to run</li>
+                            <li>They spin up each dependency, and each dependency's dependency...</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Why end to end tests?</h3>
+                    <img src="images/distributed_services.png" class="plain" />
+
+                    <p style="font-size: xx-small;">Source: https://www.slideshare.net/danveloper/microservices-the-right-way</p>
+                    
+                    <aside class="notes">
+                        <ul>
+                            <li>distributed services means code split up across repositories</li>
+                            <li>separated by network layer</li>
+                            <li>E2E tests verify that everything works together</li>
+                            <li>Unit tests lose value since your mocks might be wrong</li>
+                            <li>Using stubs or fakes requires engineering effort, and again no guarantee as to their correctness</li>
+                            <li>Our testing doesn't look like a pyramid: many unittests, a few integration, a lot of E2E</li>
+                            <li>That's why we invested in E2E infrastructure, and why I gave a talk on managing state in dependencies and running E2E tests more quickly</li>
+                        </ul>
+                    </aside>
+                </section>
+                
+                <section>
+                    <h3>Flakes</h3>
+                    <img src="images/test_results_red.png" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>tests are not only slow, but also flaky</li>
+                            <li>services spun up separately, each in its own Docker container</li>
+                            <li>Need to create state in all dependant services</li>
+                            <li>Docker failures, request timeouts...</li>
+                            <li>High hardware requirements (extreme example, this machine was too small)</li>
+                            <li>continued our investment</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Improving speed and reducing flakiness</h3>
+                    <img src="images/acceptance_tests_vcr.png" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>We're using Mountebank to record and replay service responses</li>
+                            <li>Augmented it so it knows about which test is run, so we can run them in parallel</li>
+                            <li>This is contract testing the way Martin Fowler describes it, with self-initializing fakes</li>
+                            <li>Eliminates most of the flakiness due to timeout issues</li>
+                            <li>Docker issues still there though</li>
+                            <li>Also people have to run the full test suite for most changes</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Contract testing</h3>
+
+                    <blockquote cite="https://www.mabl.com/blog/understanding-contract-testing-microservices-mabl">
+                        Contract Testing is writing tests to ensure that the explicit and implicit contracts of your microservices work as advertised.
+                    </blockquote>
+                    <author>Bob Reselman</author>
+
+                    <aside class="notes">
+                        <ul>
+                            <li>In particular: consumer contract testing</li>
+                            <li>Oftentimes people mean testing against a real instance or a stub / fake</li>
+                            <li>But what if we could use mocks that are tested against the contract?</li>
+                            <li>Like unit testing - in process, but with validated mock data</li>
+                            <li>It turns out we can already validate the contract, for each service request</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>A service call at Yelp</h3>
+                    <img src="images/service_call.png" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>Each service has an API specification in OpenAPI (formerly Swagger) format</li>
+                            <li>Calls are done with a service-specific client library</li>
+                            <li>Client libraries are versioned and ship with a specification from when they were created</li>
+                            <li>You then make an API call using Python function calls</li>
+                            <li>The main part of our service client libraries is the bravado library, which is Open Source</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Anatomy of a client library request</h3>
+                    <img src="images/bravado_request.svg" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>Request constructed from Python function call</li>
+                            <li>Validated using swagger_spec_validator, which uses jsonschema</li>
+                            <li>Marshalled: converted from Python objects to wire format (JSON)</li>
+                            <li>Response: adapt it for bravado, validate it, unmarshal it to Python</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Inject mock in client library</h3>
+                    <img src="images/bravado_request_mock.svg" class="plain" />
+
+                    <aside class="notes">
+                        <ul>
+                            <li>So what if instead of mocking out the whole client library we just prevent it from sending a request, and provide mock response data?</li>
+                            <li>We let most of the client library machinery run, and we take advantage of its validation capabilities</li>
+                            <li>And since we know the contract, we can even provide a default response mock for free</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Patching the client library</h3>
+
+                    <pre><code data-trim data-noescape>
+                        class TestExampleHappyhourClient():
+                            @pytest.fixture(autouse=True)
+                            def setup_teardown(self):
+                                with patch_clientlib() as mock_client:
+                                    yield
+                        
+                            def test_get_hours_simple():
+                                hours = get_hours_simple()
+                        
+                            assert hours == {
+                                'SUN': {'time_start': 0, 'time_end': 0},
+                                'MON': {'time_start': 0, 'time_end': 0},
+                                ...
+                            }
+                    </code></pre>
+
+                    <aside class="notes">
+                        <ul>
+                            <li>All we need to do is patch the clientlib, and our test will execute without doing a network request</li>
+                            <li>and it will return data according to the response specification, with default values</li>
+                            <li>OpenAPI allows us to provide an example response in the specification, if it exists that data will be returned</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Providing a mock response</h3>
+
+                    <pre><code data-trim data-noescape>
+                        class TestExampleHappyhourClient():
+                            @pytest.fixture(autouse=True)
+                            def setup_teardown(self):
+                                with patch_clientlib() as mock_client:
+                                    mock_client.hours.getHours\
+                                    .set_return_value_and_status_code(
+                                        return_value={
+                                            'FRI': {'time_start': 21, 'time_end': 23},
+                                            'SAT': {'time_start': 21, 'time_end': 23},
+                                            'SUN': {'time_start': 21, 'time_end': 23},
+                                        },
+                                        status_code=200,
+                                    )
+                                    yield
+                    </code></pre>
+
+                    <aside class="notes">
+                        <ul>
+                            <li>We can also provide custom mock responses, and set custom HTTP status codes</li>
+                            <li>Providing a side effect is also possible</li>
+                            <li>What if the mock we provide as return value is wrong according to the specification?</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Mocks with errors</h3>
+
+                    <pre class="fragment" style="color: red; background-color: black">jsonschema.exceptions.ValidationError:
+    'id' is a required property</code></pre>
+
+                    <aside class="notes">
+                        <ul>
+                            <li>Your request call and response mock will be validated against the contract</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Conclusion</h3>
+
+                    <ul>
+                        <li class="fragment">End to end tests don't scale infinitely</li>
+                        <li class="fragment">Contract tests are supposed to help</li>
+                        <li class="fragment">We can leverage existing infrastructure to do consumer driven contract testing (sort of)</li>
+                        <li class="fragment">We're relying on the fact that the service adheres to the specification</li>
+                    </ul>
+
+                    <aside class="notes">
+                        <ul>
+                            <li>Did not go into detail what contract testing is</li>
+                            <li>Tools like pact, or Postman</li>
+                            <li>The other service could do backwards-incompatible changes, we wouldn't notice it with these tests</li>
+                            <li>Unlike with these contract testing frameworks, we can't run these tests on the producer side</li>
+                            <li>We developed and open-sourced a tool called swagger_spec_compatibility that helps detect backwards-incompatible specification changes</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section data-background="images/we_are_hiring.png">
+                    <br />
+                    <aside class="notes">
+                        <p>European offices!</p>
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Questions?</h2>
+
+                    <p>&nbsp;</p>
+                    <p>sjaensch@yelp.com</p>
+                </section>
+
+                <div style="display: none">
+                - about E2E tests
+                - injecting state in dependencies
+                - making them run faster
+
+                - state now (slow -> docker build, flaky)
+
+                - why E2E?
+                - contract testing
+                - unit tests: is my code buggy or my mock wrong?
+                - but we have a contract: the API specification!
+                - and we have a validator
+                - can we use it to validate our mocks?
+                - limitations: contract might be out of date
+                - real contract testing is only transient
+                - conclusion: unit test speed with integration/E2E test confidence
+                </div>
+
+
+            </div>
+            <div class="footer">
+                <img src="images/twitter.svg" style="height: 24px" />
+                @s_jaensch
+            </div>
+        </div>
+
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                controls: false,
+                pdfSeparateFragments: false,
+                progress: false,
+                slideNumber: true,
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true }
+                ]
+            });
+        </script>
+    </body>
 </html>

@@ -4,10 +4,11 @@
 *.eml
 out/
 .DS_Store
+.sass-cache
 .svn
+.vscode
 log/*.log
 tmp/**
 node_modules/
-.sass-cache
 css/reveal.min.css
 js/reveal.min.js
